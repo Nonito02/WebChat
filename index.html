@@ -1,0 +1,219 @@
+
+<!DOCTYPE html>
+<html>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Norts</title>
+
+<head>
+    <style>
+
+body {
+    margin: 0;
+    padding: 0;
+    background: #6c96bd;
+}
+
+#messages {
+    position: fixed;
+    left: 28%;
+    top: 20%;
+    width: calc(50% - 100px); 
+    height: calc(86% - 115px); 
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+    border-radius: 2rem;
+    overflow-y: auto;
+    padding: 10px;
+    box-sizing: border-box;
+    color: #fff; 
+}
+
+#sendMsg {
+    position: fixed;
+    left: 28%;
+    bottom: 0;
+    width: calc(50% - 100px); 
+    height: 50px;
+    background: #000; 
+    border-radius: 1rem;
+    bottom: 5%;
+    box-sizing: border-box;
+}
+
+#msgTxt {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: calc(100% - 100px);
+    height: 100%;
+    padding-left: 10px;
+    box-sizing: border-box;
+    background: #333; 
+    color: #fff;
+}
+
+#msgBtn {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 100px;
+    height: 100%;
+    background: #0b4cd8;
+    color: #fff; 
+}
+
+.outer {
+    width: 100%;
+    margin-top: 10px;
+    display: flex;
+}
+
+#inner {
+    padding: 10px;
+    box-sizing: border-box;
+    border-radius: 10px;
+}
+
+.me {
+    margin-right: 2%;
+    background: rgba(68, 98, 235, 0.5);
+    color: #fff;
+}
+
+.notMe {
+    background: #7e8497;
+    color: #000;
+}
+
+#dltMsg {
+    color: rgb(1, 10, 10);
+    background: rgba(81, 107, 223, 0.5);
+    border: none;
+}
+
+header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* background: #0b4cd8; */
+    color: #fff;
+    padding: 10px;
+    font-size: 1.5em;
+    background: rgba(81, 107, 223, 0.5);
+    backdrop-filter: blur(10px);
+}
+
+
+@media screen and (max-width: 768px) {
+    body {
+        margin-top: 10%;
+    }
+
+    #messages {
+        left: 10px;
+        top: 125px;
+        width: calc(100% - 20px); /* Adjust the width for smaller screens */
+        height: calc(90% - 115px); /* Keep the same height */
+    }
+
+    #sendMsg {
+        left: 10px;
+        bottom: 0;
+        width: calc(100% - 20px); /* Adjust the width for smaller screens */
+        height: 40px;
+        bottom: 3%;
+    }
+
+    header {
+        font-size: 1.2em;
+    }
+}   
+
+
+
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>WebChat | Norts</h1>
+        
+    </header>
+    
+
+    <div id="messages"></div>
+
+    <div id="sendMsg">
+        <input type="text" id="msgTxt" placeholder="Send messages...">
+        <input type="submit" id="msgBtn" value="send" onclick="module.sendMsg()">
+    </div>
+
+    <script>
+        module = {};
+    </script>
+    <script type="module">
+   
+     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+     import { getDatabase, ref, set, remove, onChildAdded, onChildRemoved } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
+
+     const firebaseConfig = {
+     apiKey: "AIzaSyCQTeBaVG3El8PCRXsEAGc7YXpzCxCd0Wc",
+     authDomain: "chatapp-4d85e.firebaseapp.com",
+     projectId: "chatapp-4d85e",
+     storageBucket: "chatapp-4d85e.appspot.com",
+     messagingSenderId: "137985485873",
+     appId: "1:137985485873:web:f63abf53f7c2d3aadfb910"
+     };
+
+ 
+  const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // variables
+        var msgTxt = document.getElementById('msgTxt');
+        var sender;
+        if(sessionStorage.getItem('sender')){
+            sender = sessionStorage.getItem('sender');
+        } else {
+            sender = prompt('Enter your name awaatttttttt');
+            sessionStorage.setItem('sender',sender);
+        }
+
+        // TO SEND MESSAGES
+        module.sendMsg = function sendMsg(){
+            var msg = msgTxt.value;
+            var timestamp = new Date().getTime();
+            set(ref(db,"messages/"+timestamp),{
+                msg : msg,
+                sender : sender
+            })
+
+            msgTxt.value="";
+        }
+
+        // TO RECEIVE MSG
+        onChildAdded(ref(db,"messages"), (data)=>{
+            if(data.val().sender == sender){
+                messages.innerHTML += "<div style=justify-content:end class=outer id="+data.key+"><div id=inner class=me>You:  "+data.val().msg+ "    | <button id=dltMsg onclick=module.dltMsg("+data.key+")>Unsend</button></div></div>";
+            } else {
+                messages.innerHTML += "<div class=outer id="+data.key+"><div id=inner class=notMe>"+data.val().sender+": "+data.val().msg+"</div></div>";
+            }
+        })
+
+        // TO DELETE MSG
+        module.dltMsg = function dltMsg(key){
+            remove(ref(db,"messages/"+key));
+        }
+
+        // WHEN MSG IS DELETED
+        onChildRemoved(ref(db,"messages"),(data)=>{
+            var msgBox = document.getElementById(data.key);
+            messages.removeChild(msgBox);
+        })
+    </script>
+</body>
+
+</html>

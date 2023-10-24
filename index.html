@@ -149,6 +149,7 @@ header {
     <div id="sendMsg">
         <input type="text" id="msgTxt" placeholder="Send messages...">
         <input type="submit" id="msgBtn" value="send" onclick="module.sendMsg()">
+        <label class="fromdevice" for="fromdevicefiles"><input type="file" id="fromdevicefiles" multiple><img alt="uploadfiles" id="upload" src="https://img.icons8.com/external-tal-revivo-shadow-tal-revivo/96/000000/external-upload-processing-bar-with-upwards-arrow-logotype-upload-shadow-tal-revivo.png"/></label>
     </div>
 
     <script>
@@ -178,7 +179,7 @@ header {
         if(sessionStorage.getItem('sender')){
             sender = sessionStorage.getItem('sender');
         } else {
-            sender = prompt('Enter your name awaatttttttt');
+            sender = prompt('Enter your fucking name!');
             sessionStorage.setItem('sender',sender);
         }
 
